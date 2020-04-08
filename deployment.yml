@@ -1,0 +1,40 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: self-hosted-runner
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: self-hosted-runner
+    spec:
+      containers:
+      - name: self-hosted-runner
+        # Update this image location
+        image: gcr.io/self-hosted-runner-test/self-hosted-runner:latest
+        imagePullPolicy: Always
+        env:
+          - name: GITHUB_REPO
+            valueFrom:
+              secretKeyRef:
+                name: self-hosted-runner-creds
+                key: GITHUB_REPO
+          - name: TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: self-hosted-runner-creds
+                key: TOKEN
+          - name: DOCKER_HOST
+            value: 127.0.0.1
+          - name: DOCKER_BUILDKIT
+            value: "1"
+        resources:
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+      # Docker-in-Docker not recommended for production
+      - name: dind
+        image: docker:18.09-dind
+        securityContext:
+          privileged: true

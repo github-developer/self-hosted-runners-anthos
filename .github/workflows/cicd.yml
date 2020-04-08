@@ -1,0 +1,89 @@
+# This workflow builds and deploys a GitHub Actions self hosted runner to Google Kubernetes Engine.
+#
+# REQUIREMENTS:
+# - "Google Kubernetes Engine" setup steps in README, including adding appropriate secrets to repository
+name: Self Hosted Runner CI/CD 
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+  GKE_CLUSTER: self-hosted-runner-test-cluster
+  GKE_SECRETS: self-hosted-runner-creds
+  GCP_REGION: us-central1
+  IMAGE: self-hosted-runner
+  GITHUB_REPO: owner/repo # should be a private repository, see https://help.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
+  TOKEN: ${{ secrets.TOKEN }} # Personal Access Token used to register and deregister runners. GITHUB_TOKEN isn't good for most use cases because it is only valid for one hour.
+
+jobs:
+  # Build and push image to GCR
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Configure Google Cloud credentials
+    - name: Configure Google Cloud credentials
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # until 0.2.0 release is available
+      with:
+        version: 275.0.0
+        service_account_email: ${{ secrets.GCP_EMAIL }}
+        service_account_key: ${{ secrets.GCP_KEY }}
+    
+    # Use gcloud CLI to configure docker authentication for subsequent push
+    - run: |
+        gcloud auth configure-docker
+
+    # Build Docker image
+    - name: Build image
+      run: docker build . -t gcr.io/"$GCP_PROJECT"/"$IMAGE":latest
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |
+        docker push gcr.io/$GCP_PROJECT/$IMAGE:latest
+
+  # Apply Kubernetes manifest to deploy image to cluster
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+
+    # Only on push to master (a merged PR)
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Configure Google Cloud credentials
+      - name: Configure Google Cloud credentials
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # until 0.2.0 release is available
+        with:
+          version: 275.0.0
+          service_account_email: ${{ secrets.GCP_EMAIL }}
+          service_account_key: ${{ secrets.GCP_KEY }}
+
+      # Configure Kubernetes
+      - name: Configure Kubernetes
+        run: |
+          gcloud container clusters get-credentials $GKE_CLUSTER --region $GCP_REGION --project $GCP_PROJECT
+
+      # Optional: Update secrets in Google Kubernetes Engine (GKE) cluster (to change repo the runner is available to or authentication token)
+      # Note that GITHUB_TOKEN is only valid for one hour.
+      - name: Update secrets
+        run: |
+          kubectl get secrets $GKE_SECRETS -o json | 
+            jq --arg repo "$(echo -n $GITHUB_REPO | base64)" '.data["GITHUB_REPO"]=$repo' |
+            jq --arg token "$(echo -n $TOKEN | base64)" '.data["TOKEN"]=$token' |
+            kubectl apply -f -
+
+      # Deploy to Google Kubernetes Engine (GKE) cluster
+      - name: Deploy
+        run: |
+          kubectl apply -f deployment.yml
