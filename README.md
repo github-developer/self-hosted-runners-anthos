@@ -88,3 +88,11 @@ kubectl create secret generic self-hosted-runner-creds \
 
 ## Future improvements
 * Replace Docker-in-Docker with Tekton, Buildah, etc.
+
+## Contributions
+
+We welcome contributions! See [how to contribute](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE)
