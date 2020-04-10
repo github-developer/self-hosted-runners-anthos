@@ -1,6 +1,6 @@
 # GitHub Actions Self Hosted Runners on Anthos
 
-This project shows an example configuration and usage of GitHub Actions self hosted runners on Anthos, using the [self hosted runners API](https://developer.github.com/v3/actions/self_hosted_runners/). [Contributions](CONTRIBUTING.md) are welcome!
+This project shows an _example_ configuration and usage of GitHub Actions self hosted runners on Anthos, using the [self hosted runners API](https://developer.github.com/v3/actions/self_hosted_runners/). Under active development 🧪.
 
 A Continuous Integration [job](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs) builds the image and publishes it to Google Container Registry, and a Continuous Deployment job deploys it to Google Kubernetes Engine (GKE). The self hosted runners in this cluster are made available to the GitHub repository configured via the `GITHUB_REPO` environment variable below.
 
