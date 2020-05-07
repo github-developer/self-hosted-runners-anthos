@@ -39,17 +39,6 @@ jobs:
     - run: |
         gcloud auth configure-docker
 
-    # Necessary environment variables are not empty
-    - name: Check environment variables
-      run: |
-        [ -z "$GCP_PROJECT" ] && echo "$GCP_PROJECT env must be set" && exit 1 
-        [ -z "$GKE_CLUSTER" ] && echo "$GKE_CLUSTER env must be set" && exit 1 
-        [ -z "$GKE_SECRETS" ] && echo "$GKE_SECRETS env must be set" && exit 1 
-        [ -z "$GCP_REGION" ] && echo "$GCP_REGION env must be set" && exit 1 
-        [ -z "$IMAGE" ] && echo "$IMAGE must be set" && exit 1 
-        [ -z "$GITHUB_REPO" ] && echo "$GITHUB_REPO must be set" && exit 1 
-        [ -z "$TOKEN" ] && echo "$TOKEN must be set" && exit 1 
-
     # Insert other testing and linting steps here, eg. container analysis (https://cloud.google.com/container-registry/docs/container-analysis)
 
     # Ensure Docker image can be built
