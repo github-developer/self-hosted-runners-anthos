@@ -48,18 +48,30 @@ gcloud projects add-iam-policy-binding self-hosted-runner-test \
 gcloud services enable \
     stackdriver.googleapis.com \
     compute.googleapis.com \
-    stackdriver.googleapis.com \
-    container.googleapis.com
+    container.googleapis.com \
+    anthos.googleapis.com
 ```
 
 * Create GKE cluster ([docs](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster))
 
 ```
-gcloud container clusters create self-hosted-runner-test-cluster \
-    --zone us-central1
+gcloud container clusters create self-hosted-runner-test-cluster --region us-west1 
 ```
 
-* Instead of setting these values in a local `.env` file as above, create [Kubernetes secrets](https://kubernetes.io/docs/concepts/configuration/secret/) available to your pods at runtime.
+* Register cluster to the environ [docs](https://cloud.google.com/anthos/docs/setup/cloud#gcloud)
+```
+gcloud container hub memberships register self-hosted-anthos-membership \
+  --project=self-hosted-runner-test-897234 \
+◀ --gke-uri=https://container.googleapis.com/v1/projects/self-hosted-runner-test-897234/locations/us-west1/clusters/self-hosted-runner-test-cluster \ # 
+◀ --service-account-key-file=/path-to/service-account-key.json
+```
+
+* Get the credentails for this cluster
+```
+gcloud container clusters get-credentials self-hosted-runner-test-cluster --region us-west1
+```
+
+* Which repository or organization will your self hosted runners be available to? Use [Kubernetes secrets](https://kubernetes.io/docs/concepts/configuration/secret/) to make these environment variables available to your pods.
 
 ```
 kubectl create secret generic self-hosted-runner-creds \
@@ -68,7 +80,7 @@ kubectl create secret generic self-hosted-runner-creds \
 ```
 
 * Set these as secrets in your GitHub repository:
-  * `GCP_PROJECT`: Name of your Google Cloud Platform project, eg. `self-hosted-runner-test`
+  * `GCP_PROJECT`: ID of your Google Cloud Platform project, eg. `self-hosted-runner-test-897234`
   * `GCP_EMAIL`: Service Account email, eg. `runner-admin@self-hosted-runner-test.iam.gserviceaccount.com`
   * `GCP_KEY`: Download your [Service Account JSON credentials](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and Base64 encode them, eg. output of `cat ~/path/to/my/credentials.json | base64`
   * `TOKEN`: Personal Access Token. From the [documentation](https://developer.github.com/v3/actions/self_hosted_runners/), "Access tokens require `repo scope` for private repos and `public_repo scope` for public repos".
