@@ -1,8 +1,8 @@
-FROM ubuntu:latest
+FROM ubuntu:18.04
 
 # Update and download dependencies
 RUN apt-get update
-RUN apt-get install -y libssl-dev curl iputils-ping jq wget
+RUN apt-get install -y libssl-dev curl iputils-ping jq wget libicu63
 
 # Docker in docker for container builds on Kubernetes. Otherwise, follow this guidance: https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/.
 ENV DOCKER_CHANNEL stable
