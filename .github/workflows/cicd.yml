@@ -14,9 +14,9 @@ env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
   GKE_CLUSTER: self-hosted-runner-test-cluster
   GKE_SECRETS: self-hosted-runner-creds
-  GCP_REGION: us-central1
+  GCP_REGION: us-west1
   IMAGE: self-hosted-runner
-  GITHUB_REPO: owner/repo # should be a private repository, see https://help.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
+  GITHUB_REPO: ${{ secrets.REPO }} # should be a private repository, see https://help.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
   TOKEN: ${{ secrets.TOKEN }} # Personal Access Token used to register and deregister runners. GITHUB_TOKEN isn't good for most use cases because it is only valid for one hour.
 
 jobs:
@@ -32,7 +32,6 @@ jobs:
     - name: Configure Google Cloud credentials
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # until 0.2.0 release is available
       with:
-        version: 275.0.0
         service_account_email: ${{ secrets.GCP_EMAIL }}
         service_account_key: ${{ secrets.GCP_KEY }}
     
