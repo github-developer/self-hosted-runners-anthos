@@ -1,4 +1,4 @@
-# This workflow builds and deploys a GitHub Actions self hosted runner to Google Kubernetes Engine.
+# This workflow builds and deploys a GitHub Actions self hosted runner to Anthos GKE.
 #
 # REQUIREMENTS:
 # - "Google Kubernetes Engine" setup steps in README, including adding appropriate secrets to repository
@@ -20,8 +20,8 @@ env:
   TOKEN: ${{ secrets.TOKEN }} # Personal Access Token used to register and deregister runners. GITHUB_TOKEN isn't good for most use cases because it is only valid for one hour.
 
 jobs:
-  # Build and push image to GCR
-  publish:
+  # Test and build
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,22 +39,19 @@ jobs:
     - run: |
         gcloud auth configure-docker
 
-    # Build Docker image
+    # Insert other testing and linting steps here, eg. container analysis (https://cloud.google.com/container-registry/docs/container-analysis)
+
+    # Ensure Docker image can be built
     - name: Build image
-      run: docker build . -t gcr.io/"$GCP_PROJECT"/"$IMAGE":latest
+      run: docker build . -t gcr.io/"$GCP_PROJECT"/"$IMAGE":"$GITHUB_SHA"
 
-    # Push the Docker image to Google Container Registry
-    - name: Publish
-      run: |
-        docker push gcr.io/$GCP_PROJECT/$IMAGE:latest
-
-  # Apply Kubernetes manifest to deploy image to cluster
+  # Build and publish image, apply Kubernetes manifest to deploy image to cluster
   deploy:
-    needs: publish
+    needs: test
     runs-on: ubuntu-latest
 
     # Only on push to master (a merged PR)
-    if: github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     steps:
       - name: Checkout
@@ -64,17 +61,30 @@ jobs:
       - name: Configure Google Cloud credentials
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master # until 0.2.0 release is available
         with:
-          version: 275.0.0
           service_account_email: ${{ secrets.GCP_EMAIL }}
           service_account_key: ${{ secrets.GCP_KEY }}
+
+      # Build Docker image
+      - name: Build image
+        run: docker build . -t gcr.io/"$GCP_PROJECT"/"$IMAGE":"$GITHUB_SHA"
+
+      # Push the Docker image to Google Container Registry
+      - name: Publish
+        run: |
+          docker push gcr.io/"$GCP_PROJECT"/"$IMAGE":"$GITHUB_SHA"
 
       # Configure Kubernetes
       - name: Configure Kubernetes
         run: |
           gcloud container clusters get-credentials $GKE_CLUSTER --region $GCP_REGION --project $GCP_PROJECT
 
+      # Set up kustomize
+      - name: Set up Kustomize
+        run: |-
+          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
+
       # Optional: Update secrets in Google Kubernetes Engine (GKE) cluster (to change repo the runner is available to or authentication token)
-      # Note that GITHUB_TOKEN is only valid for one hour.
       - name: Update secrets
         run: |
           kubectl get secrets $GKE_SECRETS -o json | 
@@ -84,5 +94,8 @@ jobs:
 
       # Deploy to Google Kubernetes Engine (GKE) cluster
       - name: Deploy
-        run: |
-          kubectl apply -f deployment.yml
+        run: |-
+          ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$GCP_PROJECT/$IMAGE:$GITHUB_SHA
+          ./kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/$IMAGE
+          kubectl get services -o wide

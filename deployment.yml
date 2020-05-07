@@ -11,8 +11,7 @@ spec:
     spec:
       containers:
       - name: self-hosted-runner
-        # Update this image location
-        image: gcr.io/self-hosted-runner-test/self-hosted-runner:latest
+        image: gcr.io/PROJECT_ID/IMAGE:TAG
         imagePullPolicy: Always
         env:
           - name: GITHUB_REPO
