@@ -34,10 +34,6 @@ jobs:
       with:
         service_account_email: ${{ secrets.GCP_EMAIL }}
         service_account_key: ${{ secrets.GCP_KEY }}
-    
-    # Use gcloud CLI to configure docker authentication for subsequent push
-    - run: |
-        gcloud auth configure-docker
 
     # Insert other testing and linting steps here, eg. container analysis (https://cloud.google.com/container-registry/docs/container-analysis)
 
@@ -64,19 +60,23 @@ jobs:
           service_account_email: ${{ secrets.GCP_EMAIL }}
           service_account_key: ${{ secrets.GCP_KEY }}
 
+      # Use gcloud CLI to configure docker authentication for subsequent push
+      - run: |
+          gcloud auth configure-docker
+
       # Build Docker image
       - name: Build image
         run: docker build . -t gcr.io/"$GCP_PROJECT"/"$IMAGE":"$GITHUB_SHA"
-
-      # Push the Docker image to Google Container Registry
-      - name: Publish
-        run: |
-          docker push gcr.io/"$GCP_PROJECT"/"$IMAGE":"$GITHUB_SHA"
 
       # Configure Kubernetes
       - name: Configure Kubernetes
         run: |
           gcloud container clusters get-credentials $GKE_CLUSTER --region $GCP_REGION --project $GCP_PROJECT
+
+      # Push the Docker image to Google Container Registry
+      - name: Publish
+        run: |
+          docker push gcr.io/"$GCP_PROJECT"/"$IMAGE":"$GITHUB_SHA"
 
       # Set up kustomize
       - name: Set up Kustomize
