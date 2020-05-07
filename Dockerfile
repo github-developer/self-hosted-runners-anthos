@@ -1,4 +1,4 @@
-FROM node:12
+FROM ubuntu:latest
 
 # Update and download dependencies
 RUN apt-get update
