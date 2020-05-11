@@ -11,13 +11,13 @@ on:
   pull_request:
 
 env:
+  GITHUB_REPO: ${{ secrets.REPO }} # Should be a private repository, see https://help.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
+  TOKEN: ${{ secrets.TOKEN }} # Personal Access Token used to register and deregister runners. GITHUB_TOKEN isn't good for most use cases because it is only valid for one hour.
   GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
   GKE_CLUSTER: self-hosted-runner-test-cluster
   GKE_SECRETS: self-hosted-runner-creds
   GCP_REGION: us-west1
   IMAGE: self-hosted-runner
-  GITHUB_REPO: ${{ secrets.REPO }} # should be a private repository, see https://help.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
-  TOKEN: ${{ secrets.TOKEN }} # Personal Access Token used to register and deregister runners. GITHUB_TOKEN isn't good for most use cases because it is only valid for one hour.
 
 jobs:
   # Test and build
