@@ -1,26 +1,11 @@
 # GitHub Actions Self Hosted Runners on Anthos
 
-This project shows an _example_ configuration and usage of GitHub Actions self hosted runners on Anthos, using the [self hosted runners API](https://developer.github.com/v3/actions/self_hosted_runners/). Under active development 🧪.
+> An _example configuration and usage_ of GitHub Actions [self hosted runners](https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners) on [Anthos GKE](https://cloud.google.com/anthos/gke). Under active development 🧪.
 
 A Continuous Integration [job](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs) builds the image and publishes it to Google Container Registry, and a Continuous Deployment job deploys it to Google Kubernetes Engine (GKE). The self hosted runners in this cluster are made available to the GitHub repository configured via the `GITHUB_REPO` environment variable below.
 
-## Usage
+## Setup
 
-### Local
-
-#### Setup
-
-Set these in an `.env` file at the top level. Inject these into the Docker container at runtime; do _not_ check them in to Git in plaintext.
-* `GITHUB_REPO` - repository to allow to use the self hosted runner (eg. `octocat/spoon-knife`)
-* `TOKEN`: [Personal Access Token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) or [OAuth app token](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/) with `administration` permission, which is necessary for interacting with the [Self Hosted Runner API](https://developer.github.com/v3/actions/self_hosted_runners/). [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) does not have `administration` permission.
-
-#### Run Docker container
-* `docker build -t self-hosted-runner .`
-* `docker run --env-file=.env -v /var/run/docker.sock:/var/run/docker.sock self-hosted-runner` (Docker-in-Docker not recommended for production)
-
-### Google Kubernetes Engine 
-
-#### Setup
 * Create a new Google Cloud Platform project ([docs](https://cloud.google.com/sdk/gcloud/reference/projects/create))
 
 ```
@@ -71,12 +56,12 @@ gcloud container hub memberships register self-hosted-anthos-membership \
 gcloud container clusters get-credentials self-hosted-runner-test-cluster --region us-west1
 ```
 
-* Which repository or organization will your self hosted runners be available to? Use [Kubernetes secrets](https://kubernetes.io/docs/concepts/configuration/secret/) to make these environment variables available to your pods.
+* Use [Kubernetes secrets](https://kubernetes.io/docs/concepts/configuration/secret/) to provide a Personal Access Token (`TOKEN`) and repository/organization (`GITHUB_REPO`) as environment variables available to your pods.
 
 ```
 kubectl create secret generic self-hosted-runner-creds \
     --from-literal=GITHUB_REPO='https://github.com/<owner>/<repo>' \
-    --from-literal=GITHUB_TOKEN='token'
+    --from-literal=TOKEN='token'
 ```
 
 * Set these as secrets in your GitHub repository:
@@ -91,8 +76,6 @@ kubectl create secret generic self-hosted-runner-creds \
   * `GCP_REGION`: The region your cluster is in, eg. `us-central1`
   * `IMAGE`: Name of your image used in [`ci.yml`](.github/workflows/ci.yml) and [`deployment.yml`](.github/workflows/deployment.yml)
   * `GITHUB_REPO`: `owner/repo` of the repository that will use the self hosted runner, eg. `octocat/sandbox`
-
-* Update values in `deployment.yml` to reflect your image name and desired configuration
 
 #### Automation
 * Upon push of any image-related code to any branch, [`ci.yml`](.github/workflows/ci.yml) will kick off to build and push the Docker image.
