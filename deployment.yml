@@ -23,7 +23,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: self-hosted-runner-creds
-                key: GITHUB_TOKEN
+                key: TOKEN
           - name: DOCKER_HOST
             value: 127.0.0.1
           - name: DOCKER_BUILDKIT
