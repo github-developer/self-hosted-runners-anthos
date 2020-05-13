@@ -11,11 +11,11 @@ function remove_runner {
 # Watch for EXIT signal to be able to shut down gracefully
 trap remove_runner EXIT
 
-# Generate 
+# Generate
 CONFIG_TOKEN=$(curl --data "" --header "Authorization: Bearer $TOKEN" https://api.github.com/repos/$GITHUB_REPO/actions/runners/registration-token | jq -r '.token')
 
 # Create the runner and configure it
-./config.sh --url https://github.com/$GITHUB_REPO --token $CONFIG_TOKEN --unattended
+./config.sh --url https://github.com/$GITHUB_REPO --token $CONFIG_TOKEN --unattended --replace
 
 # Run it
 ./runsvc.sh

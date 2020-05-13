@@ -28,6 +28,15 @@ spec:
             value: 127.0.0.1
           - name: DOCKER_BUILDKIT
             value: "1"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                [
+              '/bin/bash',
+              '-c',
+              'RUNNER_ALLOW_RUNASROOT=1 ./config.sh remove --token $(curl -sS --data "" -H "Authorization: Bearer $TOKEN" https://api.github.com/repos/$GITHUB_REPO/actions/runners/remove-token | jq -r .token)'
+                ]
         resources:
             limits:
               memory: "512Mi"
