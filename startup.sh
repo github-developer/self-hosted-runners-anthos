@@ -18,4 +18,4 @@ CONFIG_TOKEN=$(curl --data "" --header "Authorization: Bearer $TOKEN" https://ap
 ./config.sh --url https://github.com/$GITHUB_REPO --token $CONFIG_TOKEN --unattended --replace
 
 # Run it
-./runsvc.sh
+./bin/runsvc.sh
