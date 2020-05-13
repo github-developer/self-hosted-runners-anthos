@@ -46,11 +46,11 @@ spec:
         image: docker:18.09-dind
         resources:
             requests:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "256Mi"
+              cpu: "250m"
             limits:
-              memory: "1024Mi"
-              cpu: "1"
+              memory: "512Mi"
+              cpu: "250m"
         securityContext:
           privileged: true
         volumeMounts:
