@@ -4,7 +4,7 @@
 
 A Continuous Integration [job](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs) builds the image and publishes it to Google Container Registry, and a Continuous Deployment job deploys it to Google Kubernetes Engine (GKE). The self hosted runners in this cluster are made available to the GitHub repository configured via the `GITHUB_REPO` environment variable below.
 
-⚠️ Note that this emerging pattern is considered experimental and _not officially supported by GitHub at this time_. Additionally [it’s recommended](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners) not to use self-hosted runners on public repositories for a number of security reasons.
+⚠️ Note that this use case is considered experimental and _not officially supported by GitHub at this time_. Additionally [it’s recommended](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners) not to use self-hosted runners on public repositories for a number of security reasons.
 
 ## Setup
 
