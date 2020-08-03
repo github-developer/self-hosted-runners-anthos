@@ -66,7 +66,7 @@ gcloud container clusters get-credentials self-hosted-runner-test-cluster --regi
 
 ```
 kubectl create secret generic self-hosted-runner-creds \
-    --from-literal=GITHUB_REPO='https://github.com/<owner>/<repo>' \
+    --from-literal=GITHUB_REPO='<owner>/<repo>' \
     --from-literal=TOKEN='token'
 ```
 
