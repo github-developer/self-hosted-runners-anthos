@@ -2,6 +2,8 @@
 
 > An example configuration and usage of GitHub Actions [self hosted runners](https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners) on [Anthos GKE](https://cloud.google.com/anthos/gke).
 
+![Self Hosted Runner CI/CD ](https://github.com/github-developer/self-hosted-runners-anthos/workflows/.github/workflows/cicd.yml/badge.svg)
+
 A Continuous Integration [job](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs) builds the image and publishes it to Google Container Registry, and a Continuous Deployment job deploys it to Google Kubernetes Engine (GKE). The self hosted runners in this cluster are made available to the GitHub repository configured via the `GITHUB_REPO` environment variable below.
 
 Because a Docker-in-Docker sidecar pod has been used in this project, these self-hosted runners can also run container builds. Though this approach offers build flexibility, it requires a [`privileged` security context](https://github.com/github-developer/self-hosted-runners-anthos/blob/cb2ee160def13ec3fff256ea43804cafe9fb7e20/deployment.yml#L55) and therefore extends the trust boundary to the whole cluster. Extra caution is recommended with this approach or [removing the sidecar](https://github.com/github-developer/self-hosted-runners-anthos/blob/cb2ee160def13ec3fff256ea43804cafe9fb7e20/deployment.yml#L45) if your application doesn’t require container builds.
