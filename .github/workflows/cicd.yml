@@ -1,7 +1,7 @@
 # This workflow builds and deploys a GitHub Actions self hosted runner to Anthos GKE.
 #
 # REQUIREMENTS:
-# - "Google Kubernetes Engine" setup steps in README, including adding appropriate secrets to repository
+# - Setup steps in README, including adding appropriate secrets to repository
 name: Self Hosted Runner CI/CD 
 
 on:
