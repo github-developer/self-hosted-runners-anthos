@@ -39,18 +39,15 @@ spec:
                 ]
         resources:
             limits:
-              memory: "512Mi"
-              cpu: "250m"
+              memory: "256Mi"
+              cpu: "100m"
       # Docker-in-Docker not recommended for production
       - name: dind
         image: docker:18.09-dind
         resources:
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
             limits:
-              memory: "512Mi"
-              cpu: "250m"
+              memory: "256Mi"
+              cpu: "100m"
         securityContext:
           privileged: true
         volumeMounts:
