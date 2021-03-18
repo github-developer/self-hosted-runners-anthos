@@ -2,7 +2,7 @@
 
 > Build and deploy GitHub Actions [self hosted runners](https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners) to Google Cloud [Anthos GKE](https://cloud.google.com/anthos/gke), making them available to a given GitHub repository.
 
-![Build status](https://github.com/github-developer/self-hosted-runners-anthos/workflows/Self%20Hosted%20Runner%20CI/CD/badge.svg)
+[![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners)![Build status](https://github.com/github-developer/self-hosted-runners-anthos/workflows/Self%20Hosted%20Runner%20CI/CD/badge.svg)
 
 ## About
 
