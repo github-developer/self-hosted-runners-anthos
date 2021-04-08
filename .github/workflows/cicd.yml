@@ -28,13 +28,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    # Configure Google Cloud credentials
-    - name: Configure Google Cloud credentials
-      uses: google-github-actions/setup-gcloud@v0.2.1
-      with:
-        service_account_key: ${{ secrets.GCP_KEY }}
-        project_id: ${{ secrets.GCP_PROJECT }}
-
     # Insert other testing and linting steps here, eg. container analysis (https://cloud.google.com/container-registry/docs/container-analysis)
 
     # Ensure Docker image can be built
